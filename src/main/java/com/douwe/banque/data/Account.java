@@ -2,6 +2,7 @@ package com.douwe.banque.data;
 
 import java.io.Serializable;
 import java.util.Date;
+import org.bson.types.ObjectId;
 
 /**
  *

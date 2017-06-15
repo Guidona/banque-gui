@@ -18,9 +18,9 @@ import java.util.logging.Logger;
  *
  * @author Vincent Douwe <douwevincent@yahoo.fr>
  */
-public class AccountDaoJDBC implements IAccountDao {
+public class AccountDaoJDBC {//implements IAccountDao {
 
-    @Override
+    //@Override
     public Account save(Account account) throws DataAccessException {
         try {
             Connection conn = JDBCConnectionFactory.getConnection();
@@ -45,7 +45,7 @@ public class AccountDaoJDBC implements IAccountDao {
         }
     }
 
-    @Override
+    //@Override
     public void delete(Account account) throws DataAccessException {
         try {
             Connection conn = JDBCConnectionFactory.getConnection();
@@ -59,7 +59,7 @@ public class AccountDaoJDBC implements IAccountDao {
         }
     }
 
-    @Override
+    //@Override
     public Account update(Account account) throws DataAccessException {
         try {
             Connection conn = JDBCConnectionFactory.getConnection();
@@ -79,7 +79,7 @@ public class AccountDaoJDBC implements IAccountDao {
         }
     }
 
-    @Override
+    //@Override
     public List<Account> findAll() throws DataAccessException {
         List<Account> result = new ArrayList<>();
         try {
@@ -111,7 +111,7 @@ public class AccountDaoJDBC implements IAccountDao {
         return result;
     }
 
-    @Override
+    //@Override
     public Account findById(Integer id) throws DataAccessException {
         try {
             Account result = null;
@@ -144,7 +144,7 @@ public class AccountDaoJDBC implements IAccountDao {
         }
     }
 
-    @Override
+    //@Override
     public Account findByAccountNumber(String accountNumber) throws DataAccessException {
         try {
             Account result = null;
@@ -177,7 +177,7 @@ public class AccountDaoJDBC implements IAccountDao {
         }
     }
 
-    @Override
+    //@Override
     public List<Account> findByCustomer(Customer cust) throws DataAccessException {
         List<Account> result = new ArrayList<>();
         try {            

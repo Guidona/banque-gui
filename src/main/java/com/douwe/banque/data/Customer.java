@@ -1,5 +1,7 @@
 package com.douwe.banque.data;
 
+import org.bson.types.ObjectId;
+
 /**
  *
  * @author Vincent Douwe <douwevincent@yahoo.fr>
