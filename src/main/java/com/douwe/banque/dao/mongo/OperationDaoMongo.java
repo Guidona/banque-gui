@@ -7,6 +7,8 @@ package com.douwe.banque.dao.mongo;
 
 import com.douwe.banque.dao.DataAccessException;
 import com.douwe.banque.dao.IOperationDao;
+import com.douwe.banque.data.Account;
+import com.douwe.banque.data.AccountType;
 import com.douwe.banque.data.Customer;
 import com.douwe.banque.data.Operation;
 import com.douwe.banque.data.OperationType;
@@ -16,6 +18,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -67,7 +70,7 @@ public class OperationDaoMongo implements IOperationDao{
             operation.setDescription((String) dBObject.get("description"));
             operation.setType(intToOperationType((int) dBObject.get("type")));
             
-            DBObject query = new BasicDBObject("_id", (ObjectId) dBObject.get("userId"));
+            DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("userId"));
             DBCursor cursor1 = MongoConnection.getConnection("User").find(query);
             for (DBObject dBObject1 : cursor1) {
                 User user = new User();
@@ -76,6 +79,18 @@ public class OperationDaoMongo implements IOperationDao{
                 user.setPassword((String) dBObject1.get("password"));
                 user.setRole(intToRoleType((int) dBObject1.get("type")));
                 user.setStatus((int) dBObject1.get("status"));
+                operation.setUser(user);
+            }
+            DBCursor cursor2 = MongoConnection.getConnection("Account").find(new BasicDBObject("_id", (Integer) dBObject.get("accountId")));
+            for (DBObject dBObject1 : cursor2) {
+                Account account = new Account();
+                account.setId((Integer) dBObject1.get("_id"));
+                account.setStatus((Integer) dBObject1.get("status"));
+                account.setAccountNumber((String) dBObject1.get("accountNumber"));
+                account.setBalance((double) dBObject1.get("balance"));
+                account.setDateDeCreation((Date) dBObject1.get("date"));
+                account.setType(intToAccountType((Integer) dBObject1.get("type")));
+                operation.setAccount(account);
             }
         }
         return operation;
@@ -83,12 +98,86 @@ public class OperationDaoMongo implements IOperationDao{
 
     @Override
     public List<Operation> findAll() throws DataAccessException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Operation> result = new ArrayList<>();
+        DBCursor cursor = MongoConnection.getConnection("Operation").find();
+        for(DBObject dBObject : cursor){
+            Operation operation = new Operation();
+            operation.setId((Integer) dBObject.get("_id"));
+            operation.setDateOperation((Date) dBObject.get("date_operation"));
+            operation.setDescription((String) dBObject.get("description"));
+            operation.setType(intToOperationType((int) dBObject.get("type")));
+            
+            DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("userId"));
+            DBCursor cursor1 = MongoConnection.getConnection("User").find(query);
+            for (DBObject dBObject1 : cursor1) {
+                User user = new User();
+                user.setId((Integer) dBObject1.get("_id"));
+                user.setLogin((String) dBObject1.get("login"));
+                user.setPassword((String) dBObject1.get("password"));
+                user.setRole(intToRoleType((int) dBObject1.get("type")));
+                user.setStatus((int) dBObject1.get("status"));
+                operation.setUser(user);
+            }
+            DBCursor cursor2 = MongoConnection.getConnection("Account").find(new BasicDBObject("_id", (Integer) dBObject.get("accountId")));
+            for (DBObject dBObject1 : cursor2) {
+                Account account = new Account();
+                account.setId((Integer) dBObject1.get("_id"));
+                account.setStatus((Integer) dBObject1.get("status"));
+                account.setAccountNumber((String) dBObject1.get("accountNumber"));
+                account.setBalance((double) dBObject1.get("balance"));
+                account.setDateDeCreation((Date) dBObject1.get("date"));
+                account.setType(intToAccountType((Integer) dBObject1.get("type")));
+                operation.setAccount(account);
+            }
+            result.add(operation);
+        }
+        return result;
     }
 
     @Override
     public List<Operation> findForCustomer(Customer customer) throws DataAccessException {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        List<Operation> result = new ArrayList<>();
+        DBCursor cursor = MongoConnection.getConnection("Operation").find(new BasicDBObject("customerId", customer.getId()));
+        for(DBObject dBObject : cursor){
+            Operation operation = new Operation();
+            operation.setId((Integer) dBObject.get("_id"));
+            operation.setDateOperation((Date) dBObject.get("date_operation"));
+            operation.setDescription((String) dBObject.get("description"));
+            operation.setType(intToOperationType((int) dBObject.get("type")));
+            
+            DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("userId"));
+            DBCursor cursor1 = MongoConnection.getConnection("User").find(query);
+            for (DBObject dBObject1 : cursor1) {
+                User user = new User();
+                user.setId((Integer) dBObject1.get("_id"));
+                user.setLogin((String) dBObject1.get("login"));
+                user.setPassword((String) dBObject1.get("password"));
+                user.setRole(intToRoleType((int) dBObject1.get("type")));
+                user.setStatus((int) dBObject1.get("status"));
+                operation.setUser(user);
+            }
+            DBCursor cursor2 = MongoConnection.getConnection("Account").find(new BasicDBObject("_id", (Integer) dBObject.get("accountId")));
+            for (DBObject dBObject1 : cursor2) {
+                Account account = new Account();
+                account.setId((Integer) dBObject1.get("_id"));
+                account.setStatus((Integer) dBObject1.get("status"));
+                account.setAccountNumber((String) dBObject1.get("accountNumber"));
+                account.setBalance((double) dBObject1.get("balance"));
+                account.setDateDeCreation((Date) dBObject1.get("date"));
+                account.setType(intToAccountType((Integer) dBObject1.get("type")));
+                operation.setAccount(account);
+            }
+            result.add(operation);
+        }
+        return result;
+    }
+    
+    private AccountType intToAccountType(int i){
+        return (i == 0)? AccountType.deposit : AccountType.saving;
+    }
+    
+    private int AccountTypeToInt(AccountType acc){
+        return (acc == AccountType.deposit)? 0 : 1;
     }
     
     private RoleType intToRoleType(int i){

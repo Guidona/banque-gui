@@ -26,7 +26,7 @@ public class AccountDaoMongo implements IAccountDao{
     @Override
     public Account save(Account account){
         DBCollection collection = MongoConnection.getConnection("Account");
-        account.setId((int) (long) collection.count() + 1);
+        account.setId(1 + (int) (long) collection.count());
         DBObject obj = new BasicDBObject("_id", account.getId())
                                         .append("accountNumber", account.getAccountNumber())
                                         .append("balance", account.getBalance())
@@ -63,6 +63,7 @@ public class AccountDaoMongo implements IAccountDao{
             account.setId((Integer) dBObject.get("_id"));
             account.setAccountNumber((String) dBObject.get("accountNumber"));
             account.setBalance((double) dBObject.get("balance"));
+            account.setDateDeCreation((Date) dBObject.get("date"));
             account.setType(intToAccountType((Integer) dBObject.get("type")));
             
             DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("customerId"));

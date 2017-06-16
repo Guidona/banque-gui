@@ -1,9 +1,13 @@
 package com.douwe.banque.dao;
 
-import com.douwe.banque.dao.jdbc.AccountDaoJDBC;
-import com.douwe.banque.dao.jdbc.CustomerDaoJDBC;
-import com.douwe.banque.dao.jdbc.OperationDaoJDBC;
-import com.douwe.banque.dao.jdbc.UserDaoJDBC;
+//import com.douwe.banque.dao.jdbc.AccountDaoJDBC;
+//import com.douwe.banque.dao.jdbc.CustomerDaoJDBC;
+//import com.douwe.banque.dao.jdbc.OperationDaoJDBC;
+//import com.douwe.banque.dao.jdbc.UserDaoJDBC;
+import com.douwe.banque.dao.mongo.AccountDaoMongo;
+import com.douwe.banque.dao.mongo.CustomerDaoMongo;
+import com.douwe.banque.dao.mongo.OperationDaoMongo;
+import com.douwe.banque.dao.mongo.UserDaoMongo;
 
 /**
  *
@@ -19,10 +23,10 @@ public class DaoFactory {
     private IUserDao userDao;
     
     public DaoFactory(){
-        accountDao = new AccountDaoJDBC();
-        customerDao = new CustomerDaoJDBC();
-        operationDao = new OperationDaoJDBC();
-        userDao = new UserDaoJDBC();
+        accountDao = new AccountDaoMongo();
+        customerDao = new CustomerDaoMongo();
+        operationDao = new OperationDaoMongo();
+        userDao = new UserDaoMongo();
     }
 
     public IAccountDao getAccountDao() {

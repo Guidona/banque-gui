@@ -7,7 +7,7 @@ package com.douwe.banque.dao.mongo;
 
 import com.douwe.banque.dao.DataAccessException;
 import com.douwe.banque.dao.ICustomerDao;
-import com.douwe.banque.data.Account;
+//import com.douwe.banque.data.Account;
 import com.douwe.banque.data.Customer;
 import com.douwe.banque.data.RoleType;
 import com.douwe.banque.data.User;
@@ -17,7 +17,7 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
-import org.bson.types.ObjectId;
+//import org.bson.types.ObjectId;
 
 /**
  *
@@ -68,20 +68,21 @@ public class CustomerDaoMongo implements ICustomerDao{
         for(DBObject dBObject : cursor){
             Customer customer = new Customer();
             customer.setId((Integer) dBObject.get("_id"));
-            customer.setName((String) dBObject.get("namer"));
+            customer.setName((String) dBObject.get("name"));
             customer.setEmailAddress((String) dBObject.get("email"));
             customer.setPhoneNumber((String) dBObject.get("phone"));
             customer.setStatus((Integer) dBObject.get("status"));
             
-            DBObject query = new BasicDBObject("_id", (ObjectId) dBObject.get("userId"));
+            DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("userId"));
             DBCursor cursor1 = MongoConnection.getConnection("User").find(query);
             for (DBObject dBObject1 : cursor1) {
                 User user = new User();
                 user.setId((Integer) dBObject1.get("_id"));
                 user.setLogin((String) dBObject1.get("login"));
                 user.setPassword((String) dBObject1.get("password"));
-                user.setRole(intToRoleType((int) dBObject1.get("type")));
+                user.setRole(intToRoleType((int) dBObject1.get("role")));
                 user.setStatus((int) dBObject1.get("status"));
+                customer.setUser(user);
             }
             result.add(customer);
         }
@@ -115,15 +116,16 @@ public class CustomerDaoMongo implements ICustomerDao{
             customer.setPhoneNumber((String) dBObject.get("phone"));
             customer.setStatus((Integer) dBObject.get("status"));
             
-            DBObject query = new BasicDBObject("_id", (ObjectId) dBObject.get("userId"));
+            DBObject query = new BasicDBObject("_id", (Integer) dBObject.get("userId"));
             DBCursor cursor1 = MongoConnection.getConnection("User").find(query);
             for (DBObject dBObject1 : cursor1) {
                 User user = new User();
                 user.setId((Integer) dBObject1.get("_id"));
                 user.setLogin((String) dBObject1.get("login"));
                 user.setPassword((String) dBObject1.get("password"));
-                user.setRole(intToRoleType((int) dBObject1.get("type")));
+                user.setRole(intToRoleType((int) dBObject1.get("role")));
                 user.setStatus((int) dBObject1.get("status"));
+                customer.setUser(user);
             }
         }
         return customer;
