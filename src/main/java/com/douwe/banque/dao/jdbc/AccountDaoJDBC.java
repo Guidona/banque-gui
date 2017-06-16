@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  *
  * @author Vincent Douwe <douwevincent@yahoo.fr>
  */
-public class AccountDaoJDBC {//implements IAccountDao {
+public class AccountDaoJDBC implements IAccountDao {
 
     //@Override
     public Account save(Account account) throws DataAccessException {
