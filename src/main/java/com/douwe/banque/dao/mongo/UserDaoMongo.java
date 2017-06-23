@@ -43,7 +43,7 @@ public class UserDaoMongo implements IUserDao{
     @Override
     public User save(User user) throws DataAccessException {
         DBCollection collection = MongoConnection.getConnection("User");
-        user.setId(1 + (int) (long) collection.count());
+        user.setId(MongoConnection.getIdentifier(collection));
         DBObject object = new BasicDBObject("_id", user.getId())
                                            .append("login", user.getLogin())
                                            .append("password", user.getPassword())
@@ -55,7 +55,8 @@ public class UserDaoMongo implements IUserDao{
 
     @Override
     public void delete(User user) throws DataAccessException {
-        MongoConnection.getConnection("User").remove(new BasicDBObject("_id", user.getId()));
+        DBObject query = new BasicDBObject("_id", user.getId());
+        MongoConnection.getConnection("User").remove(query);
     }
 
     @Override
@@ -70,47 +71,46 @@ public class UserDaoMongo implements IUserDao{
 
     @Override
     public User findById(Integer id) throws DataAccessException {
-        DBCollection collection = MongoConnection.getConnection("User");
-        DBCursor cursor = collection.find(new BasicDBObject("_id", id));
-        return find(cursor);
+        return find(MongoConnection.getConnection("User").find(new BasicDBObject("_id", id)));
     }
 
     @Override
     public List<User> findAll() throws DataAccessException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         List<User> result = new ArrayList<>();
         DBCursor cursor = MongoConnection.getConnection("User").find();
-        for (DBObject dBObject : cursor) {
-            User user = new User();
-            user.setId((Integer) dBObject.get("_id"));
-            user.setLogin((String) dBObject.get("login"));
-            user.setPassword((String) dBObject.get("password"));
-            user.setRole(intToRoleType((int) dBObject.get("role")));
-            user.setStatus((int) dBObject.get("status"));
-            result.add(user);
+        if(cursor.count() > 0){
+            for (DBObject dBObject : cursor) {
+                User user = new User();
+                user.setId((Integer) dBObject.get("_id"));
+                user.setLogin((String) dBObject.get("login"));
+                user.setPassword((String) dBObject.get("password"));
+                user.setRole(intToRoleType((int) dBObject.get("role")));
+                user.setStatus((int) dBObject.get("status"));
+                result.add(user);
+            }
         }
         return result;
     }
 
     @Override
     public User findByLogin(String login) throws DataAccessException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         return find(MongoConnection.getConnection("User").find(new BasicDBObject("login", login)));
     }
 
     @Override
     public List<User> findByStatus(int status) throws DataAccessException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         List<User> result = new ArrayList<>();
         DBCursor cursor = MongoConnection.getConnection("User").find(new BasicDBObject("status", status));
-        for (DBObject dBObject : cursor) {
-            User user = new User();
-            user.setId((Integer) dBObject.get("_id"));
-            user.setLogin((String) dBObject.get("login"));
-            user.setPassword((String) dBObject.get("password"));
-            user.setRole(intToRoleType((int) dBObject.get("role")));
-            user.setStatus((int) dBObject.get("status"));
-            result.add(user);
+        if(cursor.count() > 0){
+            for (DBObject dBObject : cursor) {
+                User user = new User();
+                user.setId((Integer) dBObject.get("_id"));
+                user.setLogin((String) dBObject.get("login"));
+                user.setPassword((String) dBObject.get("password"));
+                user.setRole(intToRoleType((int) dBObject.get("role")));
+                user.setStatus((int) dBObject.get("status"));
+                result.add(user);
+            }
         }
         return result;
     }
@@ -124,9 +124,12 @@ public class UserDaoMongo implements IUserDao{
     }
     
     private User find(DBCursor cursor){
+        if(cursor.count() == 0){
+            return null;
+        }
         User user = new User();
         for (DBObject dBObject : cursor) {
-            user.setId((int)dBObject.get("_id"));
+            user.setId((int) dBObject.get("_id"));
             user.setLogin((String) dBObject.get("login"));
             user.setPassword((String) dBObject.get("password"));
             user.setRole(intToRoleType((int) dBObject.get("role")));

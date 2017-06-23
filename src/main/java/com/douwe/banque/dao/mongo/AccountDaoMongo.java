@@ -26,12 +26,13 @@ public class AccountDaoMongo implements IAccountDao{
     @Override
     public Account save(Account account){
         DBCollection collection = MongoConnection.getConnection("Account");
-        account.setId(1 + (int) (long) collection.count());
+        account.setId(MongoConnection.getIdentifier(collection));
         DBObject obj = new BasicDBObject("_id", account.getId())
                                         .append("accountNumber", account.getAccountNumber())
                                         .append("balance", account.getBalance())
                                         .append("date", new Date())
                                         .append("type", AccountTypeToInt(account.getType()))
+                                        .append("status", account.getStatus())
                                         .append("customerId", account.getCustomer().getId());
         collection.insert(obj);
         return account;
@@ -50,7 +51,7 @@ public class AccountDaoMongo implements IAccountDao{
                                         .append("date", new Date())
                                         .append("type", AccountTypeToInt(account.getType()))
                                         .append("customerId", account.getCustomer().getId());
-        MongoConnection.getConnection("Account").update(new BasicDBObject("_id", account.getId()), new BasicDBObject("$set", obj));
+        MongoConnection.getConnection("Account").findAndModify(new BasicDBObject("_id", account.getId()), new BasicDBObject("$set", obj));
         return account;
     }
 
@@ -58,6 +59,9 @@ public class AccountDaoMongo implements IAccountDao{
     public List<Account> findAll() throws DataAccessException {
         List<Account> result = new ArrayList<>();
         DBCursor cursor = MongoConnection.getConnection("Account").find();
+        if(cursor.count() == 0){
+            return result;
+        }
         for(DBObject dBObject : cursor){
             Account account = new Account();
             account.setId((Integer) dBObject.get("_id"));
@@ -84,16 +88,12 @@ public class AccountDaoMongo implements IAccountDao{
 
     @Override
     public Account findById(Integer id) throws DataAccessException {
-        DBObject connection = new BasicDBObject("_id", id);
-        DBCursor cursor = MongoConnection.getConnection("Account").find(connection);
-        return find(cursor);
+        return find(MongoConnection.getConnection("Account").find(new BasicDBObject("_id", id)));
     }
 
     @Override
     public Account findByAccountNumber(String accountNumber) throws DataAccessException {
-        DBObject connection = new BasicDBObject("accountNumber", accountNumber);
-        DBCursor cursor = MongoConnection.getConnection("Account").find(connection);
-        return find(cursor);
+        return find(MongoConnection.getConnection("Account").find(new BasicDBObject("accountNumber", accountNumber)));
     }
 
     @Override
@@ -101,6 +101,9 @@ public class AccountDaoMongo implements IAccountDao{
         List<Account> result = new ArrayList<>();
         DBObject connection = new BasicDBObject("customerId", cust.getId());
         DBCursor cursor = MongoConnection.getConnection("Account").find(connection);
+        if(cursor.count() == 0){
+            return result;
+        }
         for(DBObject dBObject : cursor){
             Account account = new Account();
             account.setId((Integer) dBObject.get("_id"));
@@ -135,6 +138,9 @@ public class AccountDaoMongo implements IAccountDao{
     
     //Find utility to avoid redundance
     private Account find(DBCursor cursor){
+        if(cursor.count() == 0){
+            return null;
+        }
         Account account = new Account();
         for(DBObject dBObject : cursor){
             account.setId((Integer) dBObject.get("_id"));
@@ -149,7 +155,7 @@ public class AccountDaoMongo implements IAccountDao{
                 customer.setId((Integer) dBObject1.get("_id"));
                 customer.setName((String) dBObject1.get("name"));
                 customer.setEmailAddress((String) dBObject1.get("email"));
-                customer.setPhoneNumber((String) dBObject1.get("phoneNumber"));
+                customer.setPhoneNumber((String) dBObject1.get("phone"));
                 customer.setStatus((Integer) dBObject1.get("status"));
                 account.setCustomer(customer);
             }

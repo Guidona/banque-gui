@@ -5,6 +5,7 @@
  */
 package com.douwe.banque.dao.mongo;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
@@ -26,5 +27,13 @@ public class MongoConnection {
     public static DBCollection getConnection(String collection) {
         return connection.getCollection(collection);
     }
+    
+    //
+    public static int getIdentifier(DBCollection collection){
+        int i = 1;
+        while(collection.count(new BasicDBObject("_id", i)) == 1){
+            i++;
+        }
+        return i;
+    }
 }
-

@@ -7,7 +7,6 @@ package com.douwe.banque.dao.mongo;
 
 import com.douwe.banque.dao.DataAccessException;
 import com.douwe.banque.dao.ICustomerDao;
-//import com.douwe.banque.data.Account;
 import com.douwe.banque.data.Customer;
 import com.douwe.banque.data.RoleType;
 import com.douwe.banque.data.User;
@@ -17,7 +16,6 @@ import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import java.util.ArrayList;
 import java.util.List;
-//import org.bson.types.ObjectId;
 
 /**
  *
@@ -28,7 +26,7 @@ public class CustomerDaoMongo implements ICustomerDao{
     @Override
     public Customer save(Customer customer) throws DataAccessException {
         DBCollection collection = MongoConnection.getConnection("Customer");
-        customer.setId((int) (long) collection.count() + 1);
+        customer.setId(MongoConnection.getIdentifier(collection));
         DBObject obj = new BasicDBObject("_id", customer.getId())
                                         .append("name", customer.getName())
                                         .append("email", customer.getEmailAddress())
@@ -65,6 +63,9 @@ public class CustomerDaoMongo implements ICustomerDao{
     public List<Customer> findAll() throws DataAccessException {
         List<Customer> result = new ArrayList<>();
         DBCursor cursor = MongoConnection.getConnection("Customer").find();
+        if(cursor.count() == 0){
+            return result;
+        }
         for(DBObject dBObject : cursor){
             Customer customer = new Customer();
             customer.setId((Integer) dBObject.get("_id"));
@@ -91,7 +92,7 @@ public class CustomerDaoMongo implements ICustomerDao{
 
     @Override
     public Customer findByUser(User usr) throws DataAccessException {
-        return find(MongoConnection.getConnection("Customer").find(new BasicDBObject("_id", usr.getId())));
+        return find(MongoConnection.getConnection("Customer").find(new BasicDBObject("userId", usr.getId())));
     }
 
     @Override
@@ -108,10 +109,13 @@ public class CustomerDaoMongo implements ICustomerDao{
     }
     
     private Customer find(DBCursor cursor){
+        if(cursor.count() == 0){
+            return null;
+        }
         Customer customer = new Customer();
         for(DBObject dBObject : cursor){
             customer.setId((Integer) dBObject.get("_id"));
-            customer.setName((String) dBObject.get("namer"));
+            customer.setName((String) dBObject.get("name"));
             customer.setEmailAddress((String) dBObject.get("email"));
             customer.setPhoneNumber((String) dBObject.get("phone"));
             customer.setStatus((Integer) dBObject.get("status"));
